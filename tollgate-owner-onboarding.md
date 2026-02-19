@@ -110,3 +110,68 @@ If your TollGate router does not have an internet connection after setting up th
 *   **Avoid Multiple STA Interfaces on the Same Radio**: OpenWrt can have issues when more than one wireless client (STA) interface is configured on the same physical radio (e.g., `radio0`). Even if one of the STA interfaces is not currently in use, its presence in the configuration can prevent the router from correctly using the active one.
 
     **Solution**: If you have tried to connect to multiple upstream WiFi networks, you may have old, unused STA interfaces in your configuration. You should delete these old interfaces in the LuCI web interface (**Network > Wireless**). Ensure that you only have **one** active STA interface per radio.
+
+### Advanced Troubleshooting with Commands
+
+You can get more detailed information about the state of your router and the TollGate service by running commands in an SSH session.
+
+#### Finding the Router's IP Address and Connecting via SSH
+
+To run these commands, you first need to connect to the router's command line interface using SSH (Secure Shell).
+
+1.  **Find the Router's IP Address**: If you don't know the router's IP address, you can find it by running the `ifconfig` command in the router's serial console (if you have one connected) and looking for the `br-lan` interface. The IP address will be listed next to `inet addr`.
+
+    Alternatively, if your computer is connected to the router's LAN, you can find the router's IP address in your computer's network settings. It will be listed as the "gateway" or "router".
+
+2.  **Connect with SSH**: Once you have the IP address, you can connect to the router from your computer's terminal using the following command. Replace `<router_ip>` with the actual IP address.
+
+    ```bash
+    ssh root@<router_ip>
+    ```
+
+    If you have set a password in LuCI, you will be prompted to enter it.
+
+#### Checking Internet Connectivity
+
+To quickly check if the router itself has a working internet connection, use the `ping` command. This sends a small data packet to a public server to see if it responds.
+
+```bash
+root@OpenWrt:~# ping 9.9.9.9
+PING 9.9.9.9 (9.9.9.9): 56 data bytes
+64 bytes from 9.9.9.9: seq=0 ttl=52 time=33.512 ms
+64 bytes from 9.9.9.9: seq=1 ttl=52 time=33.136 ms
+```
+If you see replies like the ones above, your router's internet connection is working correctly.
+
+#### Checking the TollGate Service Log
+
+The TollGate service writes detailed logs about its activities. This is the best place to look if something is not working as expected. You can view these logs with the `logread` command.
+
+To see only the logs related to TollGate, use this command:
+```bash
+logread | grep "tollgate"
+```
+
+To see the most recent log entries, which is often the most useful, add `| tail` to the end:
+```bash
+root@OpenWrt:~# logread | grep "tollgate" | tail
+Thu Feb 19 15:18:11 2026 daemon.err tollgate-wrt[4161]: 2026/02/19 15:18:11 Skipping payout https://mint.coinos.io, Balance 0 does not meet threshold of 128
+Thu Feb 19 15:19:11 2026 daemon.err tollgate-wrt[4161]: WARN[2026-02-19T15:19:11Z] Ping failed                                   consecutive_failures=2 module=wireless_gateway_manager
+```
+*   **Interpreting the Logs**: The logs will show you information about payouts, client connections, and potential errors. For example, the "Skipping payout" message is normal if your balance hasn't reached the payout threshold.
+*   **"Ping failed" Warning**: You may see a "Ping failed" warning in the logs. This is a deprecated check and can be safely ignored.
+
+#### Restarting the Service After Configuration Changes
+
+**Important**: Any time you modify the `/etc/tollgate/config.json` or `/etc/tollgate/identities.json` files, you **must** restart the TollGate service for the changes to be applied.
+
+You can do this with the following commands:
+```bash
+service tollgate-wrt stop
+service tollgate-wrt start
+```
+Or, more simply:
+```bash
+service tollgate-wrt restart
+```
+After restarting, you can check the logs again to see the service re-initializing with your new settings.
