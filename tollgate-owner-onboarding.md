@@ -59,7 +59,9 @@ To receive your share of the revenue, you must set your own Lightning Address (L
 
 You can customize the pricing, accepted payment methods (mints), and profit sharing in the `/etc/tollgate/config.json` file.
 
-1.  **Select Trusted Mints**: The `accepted_mints` array lists the Cashu mints that your customers can use to pay. You should only include mints that you trust. You can add or remove mints from this list.
+1.  **Select Trusted Mints**: The `accepted_mints` array lists the Cashu mints that your customers can use to pay. You should only include mints that you trust. You can add or remove mints from this list. Each mint has a `min_balance` setting.
+
+    *   **`min_balance`**: This is the amount of sats that will be kept on the router for each mint, even when payouts are made. This is a crucial feature that ensures your router always has enough funds to pay for its own internet connection if it needs to connect to an upstream TollGate. The default is 64 sats.
 
 2.  **Set Your Price**: The `price_per_step` and `step_size` fields determine the cost of internet access. In the default configuration, the price is `1` satoshi for `22020096` bytes (approximately 21 MiB) of data.
 
@@ -160,6 +162,64 @@ Thu Feb 19 15:19:11 2026 daemon.err tollgate-wrt[4161]: WARN[2026-02-19T15:19:11
 ```
 *   **Interpreting the Logs**: The logs will show you information about payouts, client connections, and potential errors. For example, the "Skipping payout" message is normal if your balance hasn't reached the payout threshold.
 *   **"Ping failed" Warning**: You may see a "Ping failed" warning in the logs. This is a deprecated check and can be safely ignored.
+
+*   **Example Log Outputs**: Here are some common log entries and what they mean:
+
+    *   **Receiving Payments**: When a customer pays for internet access, you will see a series of log entries like this:
+
+        ```bash
+        Thu Feb 19 16:08:24 2026 daemon.err tollgate-wrt[4243]: INFO[2026-02-19T16:08:24Z] Received handleRootPost request               method=POST module=main remote_addr="172.17.154.106:36208"
+        Thu Feb 19 16:08:26 2026 daemon.err tollgate-wrt[4243]: 2026/02/19 16:08:26 TollWallet.Receive: Successfully received 65 sats
+        Thu Feb 19 16:08:26 2026 daemon.err tollgate-wrt[4243]: INFO[2026-02-19T16:08:26Z] Authorization successful for MAC              mac_address="36:67:93:d6:c2:00" module=valve output="Client 36:67:93:d6:c2:00 authenticated.\n"
+        ```
+        This shows a payment of **65 sats** being received and the client with the MAC address `36:67:93:d6:c2:00` being granted internet access.
+
+    *   **Client Data Usage**: When a client is connected and using the internet, you will see log entries like this, showing their data consumption in real-time.
+
+        ```bash
+        Thu Feb 19 16:09:30 2026 daemon.err tollgate-wrt[4243]: 2026/02/19 16:09:30 Data usage for 36:67:93:d6:c2:00: 51.9 MB / 1.3 GB (3.8%)
+        ```
+
+    *   **Payout Checks**: The service periodically checks the balance for each configured mint to see if it has reached the minimum payout amount. The default payout threshold is **128 sats**. The service will keep a reserve of **64 sats** on the router for its own operational needs (like buying internet from an upstream TollGate).
+
+        ```bash
+        Thu Feb 19 16:08:58 2026 daemon.err tollgate-wrt[4243]: 2026/02/19 16:08:58 Skipping payout https://mint.minibits.cash/Bitcoin, Balance 65 does not meet threshold of 128
+        ```
+        In this example, the payout for `mint.minibits.cash/Bitcoin` is skipped because the balance of 65 sats has not yet reached the 128 sat threshold.
+
+### Using the TollGate Command-Line Interface (CLI)
+
+The TollGate service also includes a command-line tool for managing the service directly. You can access it by running `tollgate` in the SSH session.
+
+```bash
+root@OpenWrt:~# tollgate
+TollGate CLI provides command-line access to your running TollGate service.
+
+Usage:
+  tollgate [command]
+
+Available Commands:
+  wallet      Wallet operations
+  ...
+```
+
+This tool is especially useful for managing your wallet.
+
+#### Checking Your Wallet Balance
+
+```bash
+root@OpenWrt:~# tollgate wallet balance
+Total wallet balance: 85 sats
+balance_sats: 85
+```
+
+#### Draining Your Wallet
+
+If you want to manually withdraw all the funds from your router's wallet, you can use the `drain` command. This will display an e-cash note on your terminal screen. Make sure you copy the e-cash straight away, because the router no longer has a copy of it:
+
+```bash
+root@OpenWrt:~# tollgate wallet drain
+```
 
 #### Restarting the Service After Configuration Changes
 
