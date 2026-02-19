@@ -7,8 +7,8 @@ Welcome to your new TollGate router! This guide will walk you through the initia
 Your TollGate router needs to connect to an existing WiFi network to get internet access. You will do this through the LuCI web interface, the standard web-based management tool for OpenWrt.
 
 1.  **Connect to the Router**: Connect your computer to the router's LAN port or to the main WiFi network it broadcasts (the one that is not the private/paid network).
-2.  **Open the Web Interface**: Open a web browser and navigate to the router's IP address. The IP address was randomly set during installation. You can find it by checking your computer's network settings (look for the "gateway" or "router" address). In the previous session, it was set to `172.17.154.1`, but it may have changed.
-3.  **Log In**: Log in to LuCI. There is no password set by default, so you can just click "Login".
+2.  **Open the Web Interface**: The TollGate captive portal runs on the standard web port (80), so the LuCI web interface has been moved to port **8080**. Open a web browser and navigate to `http://<router_ip>:8080`, replacing `<router_ip>` with the router's IP address. The IP address was randomly set during installation. You can find it by checking your computer's network settings (look for the "gateway" or "router" address). In the previous session, it was set to `172.17.154.1`, but it may have changed.
+3.  **Log In and Set a Password**: Log in to LuCI. There is no password set by default, so you can just click "Login". It is **highly recommended** that you set a strong root password immediately. You can do this by going to **System > Administration**.
 4.  **Navigate to Wireless Settings**: Go to **Network > Wireless**.
 5.  **Scan for Networks**: Find the wireless interface that is in "Client" mode (it should be named something like `phy0-sta0` or similar) and click the **Scan** button.
 6.  **Join a Network**: Select the upstream WiFi network you want to connect to from the list and click **Join Network**.
@@ -63,7 +63,7 @@ You can customize the pricing, accepted payment methods (mints), and profit shar
 
 2.  **Set Your Price**: The `price_per_step` and `step_size` fields determine the cost of internet access. In the default configuration, the price is `1` satoshi for `22020096` bytes (approximately 21 MiB) of data.
 
-3.  **Adjust the Profit Share**: The `profit_share` array determines how the revenue is split. By default, the owner receives 79% (`0.79`) and the developer receives 21% (`0.21`). You can adjust these values. If you want to keep 100% of the revenue, you can set the developer's factor to `0` and the owner's to `1.0`.
+3.  **Adjust the Profit Share**: The `profit_share` array determines how the proffit is split. By default, the owner receives 79% (`0.79`) and the maintainers receive 21% (`0.21`). You can adjust these values. If you want to keep 100% of the revenue, you can set the maintainers factor to `0` and the owner's to `1.0`.
 
 **Example `config.json` snippet:**
 ```json
@@ -98,3 +98,15 @@ service tollgate-wrt restart
 ```
 
 Your TollGate router is now fully configured and ready to start selling internet access!
+
+## 4. Troubleshooting
+
+### No Internet Connection
+
+If your TollGate router does not have an internet connection after setting up the upstream WiFi client, please check the following:
+
+*   **Single Upstream Connection**: Your router needs **at least one** active upstream internet connection. This can be either a wireless client connection (STA mode) as described above, or a wired connection to the router's WAN port.
+
+*   **Avoid Multiple STA Interfaces on the Same Radio**: OpenWrt can have issues when more than one wireless client (STA) interface is configured on the same physical radio (e.g., `radio0`). Even if one of the STA interfaces is not currently in use, its presence in the configuration can prevent the router from correctly using the active one.
+
+    **Solution**: If you have tried to connect to multiple upstream WiFi networks, you may have old, unused STA interfaces in your configuration. You should delete these old interfaces in the LuCI web interface (**Network > Wireless**). Ensure that you only have **one** active STA interface per radio.
