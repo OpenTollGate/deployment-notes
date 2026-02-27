@@ -1,4 +1,4 @@
-# Connecting to a Serial Console on Ubuntu
+enq# Connecting to a Serial Console on Ubuntu
 
 This guide explains how to find, connect to, and interact with a serial device, such as a WiFi router, on an Ubuntu system.
 
