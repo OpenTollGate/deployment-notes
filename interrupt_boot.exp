@@ -1,0 +1,38 @@
+#!/usr/bin/expect
+
+# Enable verbose debugging
+exp_internal 1
+
+set timeout 500
+
+# The user should run this script with sudo
+spawn minicom -D /dev/ttyUSB0 -b 57600
+
+# Wait for the initial boot messages and try to interrupt with ESC
+expect {
+    "Hit ESC key to stop autoboot:" {
+        send "\033\033\033\033\033\033\033\033\033\033"
+        # Send ESC repeatedly
+        exp_continue
+    }
+    "ZLB>" {
+        send "atgu\r"
+        # Send atgu if we get to ZLB>
+        exp_continue
+    }
+    "Please choose the operation:" {
+        send "4\r"
+        # Select option 4 for CLI
+        exp_continue
+    }
+    "MT7621 #" {
+        # We are in the U-Boot CLI
+        interact
+    }
+    timeout {
+        puts "Timeout: Could not interrupt boot or reach U-Boot prompt."
+        exit 1
+    }
+}
+
+interact
