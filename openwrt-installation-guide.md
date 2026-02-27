@@ -28,11 +28,11 @@ A tool to generate this password can be downloaded from: `https://get.dyn.mork.n
 Unpack it and run:
 
 ```bash
-$ zyxel_pwgen/getsupervisor.sh S200Z34000000
-3265f4ce
+$ zyxel_pwgen/getsupervisor.sh S220Z43003656
+75d37b6e
 ```
 
-The output is the "Old algorithm supervisor password" applicable for the NR7101.
+The output `75d37b6e` is the "Old algorithm supervisor password" applicable for the NR7101. You can use this password with the username `supervisor` to log in to the router's OEM web GUI (usually at `192.168.1.1` or `172.17.1.1`).
 
 ### Installation from Z-Loader (Vendor U-Boot application)
 
