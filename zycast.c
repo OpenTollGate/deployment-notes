@@ -225,15 +225,14 @@ static int pushimage(void *file, struct zycast_t *phdr)
 		if (len < CHUNK)
 			plen = len;
 		phdr->plen = htonl(plen);
-		phdr->pid = htonl(count);
+		phdr->pid = htonl(count++);
 		phdr->chksum = htons(chksum(file, plen));
 		if (send(sockfd, phdr, HDRSIZE, MSG_MORE | MSG_DONTROUTE) < 0)
-			errexit("send(phdr)");
+		        errexit("send(phdr)");
 		if (send(sockfd, file, plen, MSG_DONTROUTE) < 0)
-			errexit("send(payload)");
+		        errexit("send(payload)");
 		file += plen;
 		len -= plen;
-		count++;
 
 		/* No need to kill the network. The target can't
 		 * process packets as fast as we send them anyway.
