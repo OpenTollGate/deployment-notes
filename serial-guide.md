@@ -60,7 +60,7 @@ The most common baud rate for routers is 115200. You will need to specify the de
 With `tio`, the command to connect is:
 
 ```bash
-tio /dev/ttyUSB0 -b 115200
+sudo tio /dev/ttyUSB0 -b 57600
 ```
 
 Replace `/dev/ttyUSB0` with the actual device name you found earlier.

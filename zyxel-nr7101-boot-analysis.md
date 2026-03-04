@@ -61,7 +61,7 @@ If you're not getting any output at 115200 baud, let's try these steps:
 2.  **Try `screen`:** Use `screen` as an alternative serial terminal. It can sometimes handle connections better than `tio`.
 
     ```bash
-    sudo screen /dev/ttyUSB0 115200
+    sudo screen /dev/ttyUSB0 57600
     ```
 
     To exit `screen`, press `Ctrl+a` then `k`, and confirm with `y`.
@@ -95,7 +95,7 @@ If `screen` also doesn't provide output, let's try `minicom`. It's a highly conf
 If you're still not getting output after configuring `minicom` through the setup menu, let's try running `minicom` directly with the parameters:
 
 ```bash
-sudo minicom -D /dev/ttyUSB0 -b 115200
+sudo minicom -D /dev/ttyUSB0 -b 57600
 ```
 
 After trying this command, please let me know if you get any output.
