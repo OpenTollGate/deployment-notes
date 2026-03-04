@@ -24,8 +24,10 @@ The protocol uses a custom header to ensure the integrity and correct order of t
 Here's an example of the `zycast` command:
 ```bash
     sudo ./zycast -v -i enx00e04c683d2d -t 20 -f openwrt-24.10.5-ramips-mt7621-zyxel_nr7101-initramfs-recovery.bin
-```
+
     **Note:** `zycast` needs to be run with `sudo` because it binds to a privileged port (5631) and sends packets to a multicast address, which requires root privileges.
+
+```
     
     *   `-i eth0`: Specifies the network interface to use for sending the multicast packets.
     *   `-f openwrt-initramfs.bin`: Specifies the firmware image to flash. You should use the **Factory** image for the initial installation.
