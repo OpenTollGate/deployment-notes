@@ -228,9 +228,9 @@ static int pushimage(void *file, struct zycast_t *phdr)
 		phdr->pid = htonl(count++);
 		phdr->chksum = htons(chksum(file, plen));
 		if (send(sockfd, phdr, HDRSIZE, MSG_MORE | MSG_DONTROUTE) < 0)
-		        errexit("send(phdr)");
+			errexit("send(phdr)");
 		if (send(sockfd, file, plen, MSG_DONTROUTE) < 0)
-		        errexit("send(payload)");
+			errexit("send(payload)");
 		file += plen;
 		len -= plen;
 
