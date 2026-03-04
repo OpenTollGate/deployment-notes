@@ -15,19 +15,23 @@ The protocol uses a custom header to ensure the integrity and correct order of t
     gcc zycast.c -o zycast
     ```
 
-2.  **Connect your computer to the router:** Connect your computer to the router's LAN port.
+2.  **Connect your computer to the router:** Connect your computer to the router's LAN port. It is highly recommended to set a static IP address on your computer in the `192.168.1.x` range (e.g., `192.168.1.2` with a subnet mask of `255.255.255.0`).
 
-3.  **Put the router in bootloader mode:** This is the tricky part. You'll need to interrupt the boot process to get the router to listen for `zycast` packets. The exact method for this can vary, but it often involves holding down a reset button during power-on or sending a specific key sequence over the serial console.
+3.  **Start `zycast` on your computer:** Before powering on the router, start the `zycast` command on your computer. This will start sending the firmware image to the multicast address.
 
-4.  **Run `zycast`:** Once the router is in bootloader mode, you can run the `zycast` command to push the firmware image. Here's an example:
+4.  **Power on the router:** While `zycast` is running, power on the router. The bootloader will detect the `zycast` packets and begin the flashing process.
+
+Here's an example of the `zycast` command:
     ```bash
     ./zycast -i eth0 -f openwrt-initramfs.bin
     ```
     *   `-i eth0`: Specifies the network interface to use for sending the multicast packets.
-    *   `-f openwrt-initramfs.bin`: Specifies the firmware image to flash.
+    *   `-f openwrt-initramfs.bin`: Specifies the firmware image to flash. You should use the **Factory** image for the initial installation.
 
 **Important Considerations**
 
 *   **Bootloader Mode:** The most critical step is getting the router into the correct bootloader mode. If the router is not listening for `zycast` packets, the command will have no effect.
 *   **Image Type:** The `zycast` program allows you to specify the image type using the `-f`, `-b`, `-d`, and `-r` flags. It's crucial to use the correct image type for your device and the firmware you're flashing.
 *   **Risk of Bricking:** As with any firmware flashing process, there is a risk of bricking your device. Be sure to use the correct firmware image for your router and follow the instructions carefully.
+
+
